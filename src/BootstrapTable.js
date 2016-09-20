@@ -288,6 +288,7 @@ class BootstrapTable extends Component {
             { this.props.children }
           </TableHeader>
           <TableBody ref='body'
+            tableRowWrapper={ this.props.tableRowWrapper }
             bodyContainerClass={ this.props.bodyContainerClass }
             tableBodyClass={ this.props.tableBodyClass }
             style={ { ...style, ...this.props.bodyStyle } }
@@ -977,6 +978,7 @@ class BootstrapTable extends Component {
 }
 
 BootstrapTable.propTypes = {
+  tableRowWrapper: PropTypes.func,
   keyField: PropTypes.string,
   height: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
   maxHeight: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
@@ -1077,6 +1079,7 @@ BootstrapTable.propTypes = {
   ignoreSinglePage: PropTypes.bool
 };
 BootstrapTable.defaultProps = {
+  tableRowWrapper: undefined,
   height: '100%',
   maxHeight: undefined,
   striped: false,

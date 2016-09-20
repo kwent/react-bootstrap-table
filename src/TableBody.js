@@ -13,9 +13,18 @@ class TableBody extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      currEditCell: null
-    };
+    if (this.props.tableRowWrapper &&
+        typeof(this.props.tableRowWrapper) === 'function') {
+      this.state = {
+        currEditCell: null,
+        tableRowElement: this.props.tableRowWrapper(TableRow)
+      };
+    } else {
+      this.state = {
+        currEditCell: null,
+        tableRowElement: TableRow
+      };
+    }
     this.editing = false;
   }
 
@@ -111,7 +120,7 @@ class TableBody extends Component {
         trClassName = this.props.trClassName(data, r);
       }
       return (
-        <TableRow isSelected={ selected } key={ key } className={ trClassName }
+        <this.state.tableRowElement isSelected={ selected } key={ key } className={ trClassName }
           selectRow={ isSelectRowDefined ? this.props.selectRow : undefined }
           enableCellEdit={ this.props.cellEdit.mode !== Const.CELL_EDIT_NONE }
           onRowClick={ this.handleRowClick }
@@ -121,18 +130,18 @@ class TableBody extends Component {
           unselectableRow={ disable }>
           { selectRowColumn }
           { tableColumns }
-        </TableRow>
+        </this.state.tableRowElement>
       );
     }, this);
 
     if (tableRows.length === 0) {
       tableRows.push(
-        <TableRow key='##table-empty##'>
+        <this.state.tableRowElement key='##table-empty##'>
           <td colSpan={ this.props.columns.length + (isSelectRowDefined ? 1 : 0) }
               className='react-bs-table-no-data'>
               { this.props.noDataText || Const.NO_DATA_TEXT }
           </td>
-        </TableRow>
+        </this.state.tableRowElement>
       );
     }
 
@@ -293,6 +302,8 @@ TableBody.propTypes = {
   noDataText: PropTypes.oneOfType([ PropTypes.string, PropTypes.object ]),
   style: PropTypes.object,
   tableBodyClass: PropTypes.string,
+  tableRowWrapper: PropTypes.func,
   bodyContainerClass: PropTypes.string
 };
+
 export default TableBody;

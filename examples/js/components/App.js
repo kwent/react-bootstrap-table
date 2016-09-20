@@ -26,6 +26,9 @@ class App extends React.Component {
       text: 'Basic Table',
       href: 'basic'
     }, {
+      text: 'Row Wrapper',
+      href: 'row-wrapper'
+    }, {
       text: 'Work on Column',
       href: 'column'
     }, {
