@@ -503,55 +503,61 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    this._adjustHeaderWidth = function () {
-	      var header = _this.refs.header.refs.header;
-	      var headerContainer = _this.refs.header.refs.container;
-	      var tbody = _this.refs.body0.refs.tbody;
-	      var firstRow = tbody.childNodes[0];
-	      var isScroll = headerContainer.offsetWidth !== tbody.parentNode.offsetWidth;
-	      var scrollBarWidth = isScroll ? _util2['default'].getScrollBarWidth() : 0;
-	      if (firstRow && _this.store.getDataNum()) {
-	        var cells = firstRow.childNodes;
-	        for (var i = 0; i < cells.length; i++) {
-	          var cell = cells[i];
-	          var computedStyle = getComputedStyle(cell);
-	          var width = parseFloat(computedStyle.width.replace('px', ''));
-	          if (_this.isIE) {
-	            var paddingLeftWidth = parseFloat(computedStyle.paddingLeft.replace('px', ''));
-	            var paddingRightWidth = parseFloat(computedStyle.paddingRight.replace('px', ''));
-	            var borderRightWidth = parseFloat(computedStyle.borderRightWidth.replace('px', ''));
-	            var borderLeftWidth = parseFloat(computedStyle.borderLeftWidth.replace('px', ''));
-	            width = width + paddingLeftWidth + paddingRightWidth + borderRightWidth + borderLeftWidth;
+	      if (_this.refs.body0.refs) {
+	        (function () {
+	          var header = _this.refs.header.refs.header;
+	          var headerContainer = _this.refs.header.refs.container;
+	          var tbody = _this.refs.body0.refs.tbody;
+	          var firstRow = tbody.childNodes[0];
+	          var isScroll = headerContainer.offsetWidth !== tbody.parentNode.offsetWidth;
+	          var scrollBarWidth = isScroll ? _util2['default'].getScrollBarWidth() : 0;
+	          if (firstRow && _this.store.getDataNum()) {
+	            var cells = firstRow.childNodes;
+	            for (var i = 0; i < cells.length; i++) {
+	              var cell = cells[i];
+	              var computedStyle = getComputedStyle(cell);
+	              var width = parseFloat(computedStyle.width.replace('px', ''));
+	              if (_this.isIE) {
+	                var paddingLeftWidth = parseFloat(computedStyle.paddingLeft.replace('px', ''));
+	                var paddingRightWidth = parseFloat(computedStyle.paddingRight.replace('px', ''));
+	                var borderRightWidth = parseFloat(computedStyle.borderRightWidth.replace('px', ''));
+	                var borderLeftWidth = parseFloat(computedStyle.borderLeftWidth.replace('px', ''));
+	                width = width + paddingLeftWidth + paddingRightWidth + borderRightWidth + borderLeftWidth;
+	              }
+	              var lastPadding = cells.length - 1 === i ? scrollBarWidth : 0;
+	              if (width <= 0) {
+	                width = 120;
+	                cell.width = width + lastPadding + 'px';
+	              }
+	              var result = width + lastPadding + 'px';
+	              header.childNodes[i].style.width = result;
+	              header.childNodes[i].style.minWidth = result;
+	            }
+	          } else {
+	            _react2['default'].Children.forEach(_this.props.children, function (child, i) {
+	              if (child.props.width) {
+	                header.childNodes[i].style.width = child.props.width + 'px';
+	                header.childNodes[i].style.minWidth = child.props.width + 'px';
+	              }
+	            });
 	          }
-	          var lastPadding = cells.length - 1 === i ? scrollBarWidth : 0;
-	          if (width <= 0) {
-	            width = 120;
-	            cell.width = width + lastPadding + 'px';
-	          }
-	          var result = width + lastPadding + 'px';
-	          header.childNodes[i].style.width = result;
-	          header.childNodes[i].style.minWidth = result;
-	        }
-	      } else {
-	        _react2['default'].Children.forEach(_this.props.children, function (child, i) {
-	          if (child.props.width) {
-	            header.childNodes[i].style.width = child.props.width + 'px';
-	            header.childNodes[i].style.minWidth = child.props.width + 'px';
-	          }
-	        });
+	        })();
 	      }
 	    };
 
 	    this._adjustHeight = function () {
-	      var height = _this.props.height;
-	      var maxHeight = _this.props.maxHeight;
+	      if (_this.refs.body0) {
+	        var height = _this.props.height;
+	        var maxHeight = _this.props.maxHeight;
 
-	      if (typeof height === 'number' && !isNaN(height) || height.indexOf('%') === -1) {
-	        _this.refs.body0.refs.container.style.height = parseFloat(height, 10) - _this.refs.header.refs.container.offsetHeight + 'px';
-	      }
-	      if (maxHeight) {
-	        maxHeight = typeof maxHeight === 'number' ? maxHeight : parseInt(maxHeight.replace('px', ''), 10);
+	        if (typeof height === 'number' && !isNaN(height) || height.indexOf('%') === -1) {
+	          _this.refs.body0.refs.container.style.height = parseFloat(height, 10) - _this.refs.header.refs.container.offsetHeight + 'px';
+	        }
+	        if (maxHeight) {
+	          maxHeight = typeof maxHeight === 'number' ? maxHeight : parseInt(maxHeight.replace('px', ''), 10);
 
-	        _this.refs.body0.refs.container.style.maxHeight = maxHeight - _this.refs.header.refs.container.offsetHeight + 'px';
+	          _this.refs.body0.refs.container.style.maxHeight = maxHeight - _this.refs.header.refs.container.offsetHeight + 'px';
+	        }
 	      }
 	    };
 
@@ -765,13 +771,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentDidMount() {
 	      this._adjustTable();
 	      window.addEventListener('resize', this._adjustTable);
-	      this.refs.body0.refs.container.addEventListener('scroll', this._scrollHeader);
+	      if (this.refs.body0) {
+	        this.refs.body0.refs.container.addEventListener('scroll', this._scrollHeader);
+	      }
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
 	      window.removeEventListener('resize', this._adjustTable);
-	      this.refs.body0.refs.container.removeEventListener('scroll', this._scrollHeader);
+	      if (this.refs.body0) {
+	        this.refs.body0.refs.container.removeEventListener('scroll', this._scrollHeader);
+	      }
 	      if (this.filter) {
 	        this.filter.removeAllListeners('onFilterChange');
 	      }
@@ -969,7 +979,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      });
 
-	      if (sectionKey) {
+	      if (!Array.isArray(this.state.data)) {
 	        data = this.state.data[sectionKey];
 	      } else {
 	        data = this.state.data;
@@ -22567,41 +22577,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'edit',
-	    value: function edit(newVal, rowIndex, fieldName) {
-	      var currentDisplayData = this.getCurrentDisplayData();
-	      var rowKeyCache = undefined;
-	      if (!this.enablePagination) {
-	        currentDisplayData[rowIndex][fieldName] = newVal;
-	        rowKeyCache = currentDisplayData[rowIndex][this.keyField];
-	      } else {
-	        currentDisplayData[this.pageObj.start + rowIndex][fieldName] = newVal;
-	        rowKeyCache = currentDisplayData[this.pageObj.start + rowIndex][this.keyField];
-	      }
-	      if (this.isOnFilter) {
-	        this.data.forEach(function (row) {
-	          if (row[this.keyField] === rowKeyCache) {
-	            row[fieldName] = newVal;
-	          }
-	        }, this);
-	        if (this.filterObj !== null) this.filter(this.filterObj);
-	        if (this.searchText !== null) this.search(this.searchText);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: 'edit',
 	    value: function edit(newVal, rowIndex, fieldName, sectionKey) {
 	      var currentDisplayData = this.getCurrentDisplayData();
+	      var offset = undefined;
+
+	      if (!Array.isArray(this.data)) {
+	        offset = currentDisplayData[sectionKey];
+	      } else {
+	        offset = currentDisplayData;
+	      }
+
 	      var rowKeyCache = undefined;
 	      if (!this.enablePagination) {
-	        currentDisplayData[sectionKey][rowIndex][fieldName] = newVal;
-	        rowKeyCache = currentDisplayData[sectionKey][rowIndex][this.keyField];
+	        offset[rowIndex][fieldName] = newVal;
+	        rowKeyCache = offset[rowIndex][this.keyField];
 	      } else {
-	        currentDisplayData[sectionKey][this.pageObj.start + rowIndex][fieldName] = newVal;
-	        rowKeyCache = currentDisplayData[sectionKey][this.pageObj.start + rowIndex][this.keyField];
+	        offset[this.pageObj.start + rowIndex][fieldName] = newVal;
+	        rowKeyCache = offset[this.pageObj.start + rowIndex][this.keyField];
 	      }
 	      if (this.isOnFilter) {
-	        this.data[sectionKey].forEach(function (row) {
+	        offset.forEach(function (row) {
 	          if (row[this.keyField] === rowKeyCache) {
 	            row[fieldName] = newVal;
 	          }

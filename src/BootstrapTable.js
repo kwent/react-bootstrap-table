@@ -215,12 +215,16 @@ class BootstrapTable extends Component {
   componentDidMount() {
     this._adjustTable();
     window.addEventListener('resize', this._adjustTable);
-    this.refs.body0.refs.container.addEventListener('scroll', this._scrollHeader);
+    if (this.refs.body0) {
+      this.refs.body0.refs.container.addEventListener('scroll', this._scrollHeader);
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this._adjustTable);
-    this.refs.body0.refs.container.removeEventListener('scroll', this._scrollHeader);
+    if (this.refs.body0) {
+      this.refs.body0.refs.container.removeEventListener('scroll', this._scrollHeader);
+    }
     if (this.filter) {
       this.filter.removeAllListeners('onFilterChange');
     }
@@ -567,7 +571,7 @@ class BootstrapTable extends Component {
       }
     });
 
-    if (sectionKey) {
+    if (!Array.isArray(this.state.data)) {
       data = this.state.data[sectionKey];
     } else {
       data = this.state.data;
@@ -952,58 +956,62 @@ class BootstrapTable extends Component {
   }
 
   _adjustHeaderWidth = () => {
-    const header = this.refs.header.refs.header;
-    const headerContainer = this.refs.header.refs.container;
-    const tbody = this.refs.body0.refs.tbody;
-    const firstRow = tbody.childNodes[0];
-    const isScroll = headerContainer.offsetWidth !== tbody.parentNode.offsetWidth;
-    const scrollBarWidth = isScroll ? Util.getScrollBarWidth() : 0;
-    if (firstRow && this.store.getDataNum()) {
-      const cells = firstRow.childNodes;
-      for (let i = 0; i < cells.length; i++) {
-        const cell = cells[i];
-        const computedStyle = getComputedStyle(cell);
-        let width = parseFloat(computedStyle.width.replace('px', ''));
-        if (this.isIE) {
-          const paddingLeftWidth = parseFloat(computedStyle.paddingLeft.replace('px', ''));
-          const paddingRightWidth = parseFloat(computedStyle.paddingRight.replace('px', ''));
-          const borderRightWidth = parseFloat(computedStyle.borderRightWidth.replace('px', ''));
-          const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth.replace('px', ''));
-          width = width + paddingLeftWidth + paddingRightWidth + borderRightWidth + borderLeftWidth;
+    if (this.refs.body0.refs) {
+      const header = this.refs.header.refs.header;
+      const headerContainer = this.refs.header.refs.container;
+      const tbody = this.refs.body0.refs.tbody;
+      const firstRow = tbody.childNodes[0];
+      const isScroll = headerContainer.offsetWidth !== tbody.parentNode.offsetWidth;
+      const scrollBarWidth = isScroll ? Util.getScrollBarWidth() : 0;
+      if (firstRow && this.store.getDataNum()) {
+        const cells = firstRow.childNodes;
+        for (let i = 0; i < cells.length; i++) {
+          const cell = cells[i];
+          const computedStyle = getComputedStyle(cell);
+          let width = parseFloat(computedStyle.width.replace('px', ''));
+          if (this.isIE) {
+            const paddingLeftWidth = parseFloat(computedStyle.paddingLeft.replace('px', ''));
+            const paddingRightWidth = parseFloat(computedStyle.paddingRight.replace('px', ''));
+            const borderRightWidth = parseFloat(computedStyle.borderRightWidth.replace('px', ''));
+            const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth.replace('px', ''));
+            width = width + paddingLeftWidth + paddingRightWidth + borderRightWidth + borderLeftWidth;
+          }
+          const lastPadding = (cells.length - 1 === i ? scrollBarWidth : 0);
+          if (width <= 0) {
+            width = 120;
+            cell.width = width + lastPadding + 'px';
+          }
+          const result = width + lastPadding + 'px';
+          header.childNodes[i].style.width = result;
+          header.childNodes[i].style.minWidth = result;
         }
-        const lastPadding = (cells.length - 1 === i ? scrollBarWidth : 0);
-        if (width <= 0) {
-          width = 120;
-          cell.width = width + lastPadding + 'px';
-        }
-        const result = width + lastPadding + 'px';
-        header.childNodes[i].style.width = result;
-        header.childNodes[i].style.minWidth = result;
+      } else {
+        React.Children.forEach(this.props.children, (child, i) => {
+          if (child.props.width) {
+            header.childNodes[i].style.width = `${child.props.width}px`;
+            header.childNodes[i].style.minWidth = `${child.props.width}px`;
+          }
+        });
       }
-    } else {
-      React.Children.forEach(this.props.children, (child, i) => {
-        if (child.props.width) {
-          header.childNodes[i].style.width = `${child.props.width}px`;
-          header.childNodes[i].style.minWidth = `${child.props.width}px`;
-        }
-      });
     }
   }
 
   _adjustHeight = () => {
-    const { height } = this.props;
-    let { maxHeight } = this.props;
-    if ((typeof height === 'number' && !isNaN(height)) || height.indexOf('%') === -1) {
-      this.refs.body0.refs.container.style.height =
-        parseFloat(height, 10) - this.refs.header.refs.container.offsetHeight + 'px';
-    }
-    if (maxHeight) {
-      maxHeight = typeof maxHeight === 'number' ?
-        maxHeight :
-        parseInt(maxHeight.replace('px', ''), 10);
+    if (this.refs.body0) {
+      const { height } = this.props;
+      let { maxHeight } = this.props;
+      if ((typeof height === 'number' && !isNaN(height)) || height.indexOf('%') === -1) {
+        this.refs.body0.refs.container.style.height =
+          parseFloat(height, 10) - this.refs.header.refs.container.offsetHeight + 'px';
+      }
+      if (maxHeight) {
+        maxHeight = typeof maxHeight === 'number' ?
+          maxHeight :
+          parseInt(maxHeight.replace('px', ''), 10);
 
-      this.refs.body0.refs.container.style.maxHeight =
-        maxHeight - this.refs.header.refs.container.offsetHeight + 'px';
+        this.refs.body0.refs.container.style.maxHeight =
+          maxHeight - this.refs.header.refs.container.offsetHeight + 'px';
+      }
     }
   }
 
