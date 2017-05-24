@@ -956,7 +956,7 @@ class BootstrapTable extends Component {
   }
 
   _adjustHeaderWidth = () => {
-    if (this.refs.body0.refs) {
+    if (this.refs.body0 && this.refs.body0.refs) {
       const header = this.refs.header.refs.header;
       const headerContainer = this.refs.header.refs.container;
       const tbody = this.refs.body0.refs.tbody;
